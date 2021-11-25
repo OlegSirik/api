@@ -1,0 +1,2798 @@
+openapi: 3.0.0
+info:
+  title: partAPI
+  description: Описание всех REST сервисов partAPI
+  version: 2.0.4
+servers:
+- url: https://virtserver.swaggerhub.com/insur/name/2.0.2
+  description: SwaggerHub API Auto Mocking
+security:
+- bearerAuth: []
+tags:
+- name: accident
+  description: страхование НС
+- name: consumer_electronics
+  description: страхование бытовой техники от поломок
+- name: cargo
+  description: страхование грузов
+- name: osago
+  description: ОСАГО
+- name: casco
+  description: CASCO
+- name: mortgage
+  description: ипотека
+- name: others
+  description: прочие методы
+- name: medical
+  description: мед. страхование
+paths:
+  /sales/v2/operations:
+    get:
+      tags:
+      - others
+      summary: Получение ответа
+      description: Получение ответа
+      parameters:
+      - name: oper_id
+        in: query
+        description: Номер операции.
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Результат выполнения процесса.
+          content:
+            application/json:
+              schema:
+                type: string
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/individual/accident/quotes:
+    post:
+      tags:
+      - accident
+      summary: "НС, физ.лицо. Расчет стоимости страхового полиса."
+      description: "Выполняет расчет стоимости страхового полиса, страхование от Н\
+        С, страхователь физ.лицо"
+      requestBody:
+        description: "Содержит данные для расчета страхового полиса, например, фам\
+          илию, имя и дату рождения застрахованного и т.д."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyIndividualAccident'
+            examples:
+              example1:
+                $ref: '#/components/examples/accidentPolicy1'
+      responses:
+        "200":
+          description: Договор страхования НС с физ.лицом
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyIndividualAccident'
+              examples:
+                example1:
+                  $ref: '#/components/examples/accidentPolicy1'
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/individual/accident/policies:
+    post:
+      tags:
+      - accident
+      summary: "НС, физ.лицо. Создание страхового полиса."
+      description: Выполняет расчет стоимости страхового полиса по переданным параметрам
+        и создает страховой полис.
+      requestBody:
+        description: "Содержит данные для расчета и создания страхового полиса, на\
+          пример, фамилию, имя и дату рождения застрахованного и т.д."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyIndividualAccident'
+            examples:
+              example1:
+                $ref: '#/components/examples/accidentPolicy1'
+      responses:
+        "201":
+          description: Договор страхования НС с физ.лицом
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyIndividualAccident'
+              examples:
+                example1:
+                  $ref: '#/components/examples/accidentPolicy1'
+        "202":
+          description: "Операция начата, но не завершена к таймауту. Статус выполн\
+            ения можно запросить позже."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpAccepted'
+              example:
+                href: http://.../v2/operations?id=214123412341223
+                method: GET
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/individual/accident/policies/{policy_nr}/paymentLink:
+    post:
+      tags:
+      - accident
+      summary: Возвращает ссылку на оплату договора.
+      description: Запрос на получение ссылки на страницу оплаты.
+      parameters:
+      - name: policy_nr
+        in: path
+        description: Номер договора.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentLink'
+      responses:
+        "200":
+          description: Ссылка на оплату
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentLink'
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/corporate/accident/quotes:
+    post:
+      tags:
+      - accident
+      summary: "НС, юр.лицо. Расчет стоимости страхового полиса."
+      description: "Выполняет расчет стоимости страхового полиса, страхование от Н\
+        С, страхователь юр.лицо"
+      requestBody:
+        description: "Содержит данные для расчета и создания страхового полиса, на\
+          пример, фамилию, имя и дату рождения застрахованного и т.д."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyCorporateAccident'
+            examples:
+              example1:
+                $ref: '#/components/examples/accidentPolicy1'
+      responses:
+        "200":
+          description: Договор страхования НС с юр.лицом
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyCorporateAccident'
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/corporate/accident/policies:
+    post:
+      tags:
+      - accident
+      summary: "НС, юр.лицо. Создание страхового полиса."
+      description: Выполняет расчет стоимости страхового полиса по переданным параметрам
+        и создает страховой полис.
+      requestBody:
+        description: "Содержит данные для расчета и создания страхового полиса, на\
+          пример, фамилию, имя и дату рождения застрахованного и т.д."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyCorporateAccident'
+      responses:
+        "200":
+          description: Договор страхования НС с юр.лицом
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyCorporateAccident'
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/corporate/accident/policies/{policy_nr}/confirm:
+    post:
+      tags:
+      - accident
+      summary: Перевод полиса в статус оплачен.
+      description: Подтверждение оплаты полиса на стороне партнера.
+      parameters:
+      - name: policy_nr
+        in: path
+        description: Номер договора.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentConfirmation'
+      responses:
+        "200":
+          description: Подтверждение оплаты полиса партнером
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentConfirmation'
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/individual/medical/quotes:
+    post:
+      tags:
+      - medical
+      summary: "medical, физ.лицо. Расчет стоимости страхового полиса."
+      description: "Выполняет расчет стоимости страхового полиса, страхование от Н\
+        С, страхователь физ.лицо"
+      requestBody:
+        description: "Содержит данные для расчета страхового полиса, например, фам\
+          илию, имя и дату рождения застрахованного и т.д."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyIndividualMedical'
+      responses:
+        "200":
+          description: Договор страхования НС с физ.лицом
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyIndividualMedical'
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/individual/medical/policies:
+    post:
+      tags:
+      - medical
+      summary: "medical, физ.лицо. Создание страхового полиса."
+      description: Выполняет расчет стоимости страхового полиса по переданным параметрам
+        и создает страховой полис.
+      requestBody:
+        description: "Содержит данные для расчета и создания страхового полиса, на\
+          пример, фамилию, имя и дату рождения застрахованного и т.д."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyIndividualMedical'
+      responses:
+        "201":
+          description: Договор страхования НС с физ.лицом
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyIndividualMedical'
+        "202":
+          description: "Операция начата, но не завершена к таймауту. Статус выполн\
+            ения можно запросить позже."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpAccepted'
+              example:
+                href: http://.../v2/operations?id=214123412341223
+                method: GET
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/individual/medical/policies/{policy_nr}/paymentLink:
+    post:
+      tags:
+      - medical
+      summary: Возвращает ссылку на оплату договора.
+      description: Запрос на получение ссылки на страницу оплаты.
+      parameters:
+      - name: policy_nr
+        in: path
+        description: Номер договора.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentLink'
+      responses:
+        "200":
+          description: Ссылка на оплату
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentLink'
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/corporate/cargo/quotes:
+    post:
+      tags:
+      - cargo
+      summary: "Грузы, юр.лицо. Расчет стоимости страхового полиса страхования пер\
+        евозки грузов."
+      description: Выполняет расчет стоимости страхового полиса по переданным параметрам.
+      requestBody:
+        description: "Содержит данные для расчета и создания страхового полиса, на\
+          пример, перевозимый груз, дата перевозки  и т.д."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyCorporateCargo'
+            examples:
+              example1:
+                $ref: '#/components/examples/cargo1'
+      responses:
+        "200":
+          description: Договор страхования карго с юр.лицом
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyCorporateCargo'
+        "202":
+          description: "Операция начата, но не завершена к таймауту. Статус выполн\
+            ения можно запросить позже."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpAccepted'
+              example:
+                href: http://.../v2/operations?id=214123412341223
+                method: GET
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+  /sales/v2/corporate/cargo/policies:
+    post:
+      tags:
+      - cargo
+      summary: "Грузы, юр.лицо. Расчет стоимости страхового полиса страхования гру\
+        зов."
+      description: Выполняет расчет стоимости страхового полиса по переданным параметрам.
+      requestBody:
+        description: "Содержит данные для расчета и создания страхового полиса, на\
+          пример, перевозимый груз, дата перевозки  и т.д."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyCorporateCargo'
+            examples:
+              example1:
+                $ref: '#/components/examples/cargo1'
+      responses:
+        "201":
+          description: Договор страхования карго с юр.лицом
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyCorporateCargo'
+        "202":
+          description: "Операция начата, но не завершена к таймауту. Статус выполн\
+            ения можно запросить позже."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpAccepted'
+              example:
+                href: http://.../v2/operations?id=214123412341223
+                method: GET
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/corporate/cargo/policies/{policy_nr}/confirm:
+    post:
+      tags:
+      - cargo
+      summary: Перевод полиса в статус оплачен.
+      description: Подтверждение оплаты полиса на стороне партнера.
+      parameters:
+      - name: policy_nr
+        in: path
+        description: Номер договора.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentConfirmation'
+      responses:
+        "200":
+          description: Подтверждение оплаты полиса партнером
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentConfirmation'
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/individual/consumer_electronics/quotes:
+    post:
+      tags:
+      - consumer_electronics
+      summary: "НС, физ.лицо. Расчет стоимости страхового полиса."
+      description: "Выполняет расчет стоимости страхового полиса, страхование от Н\
+        С, страхователь физ.лицо"
+      requestBody:
+        description: "Содержит данные для расчета страхового полиса, например, фам\
+          илию, имя и дату рождения застрахованного и т.д."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyIndividualConsumerElectronic'
+      responses:
+        "200":
+          description: Договор страхования устройств с физ.лицом
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyIndividualConsumerElectronic'
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/individual/consumer_electronics/policies:
+    post:
+      tags:
+      - consumer_electronics
+      summary: "НС, физ.лицо. Создание страхового полиса."
+      description: Выполняет расчет стоимости страхового полиса по переданным параметрам
+        и создает страховой полис.
+      requestBody:
+        description: "Содержит данные для расчета и создания страхового полиса, на\
+          пример, фамилию, имя и дату рождения застрахованного и т.д."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyIndividualConsumerElectronic'
+            examples:
+              example1:
+                $ref: '#/components/examples/accidentPolicy1'
+      responses:
+        "201":
+          description: Договор страхования устройств с физ.лицом
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyIndividualConsumerElectronic'
+        "202":
+          description: "Операция начата, но не завершена к таймауту. Статус выполн\
+            ения можно запросить позже."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpAccepted'
+              example:
+                href: http://.../v2/operations?id=214123412341223
+                method: GET
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/individual/consumer_electronics/{policy_nr}/paymentLink:
+    post:
+      tags:
+      - consumer_electronics
+      summary: Возвращает ссылку на оплату договора.
+      description: Запрос на получение ссылки на страницу оплаты.
+      parameters:
+      - name: policy_nr
+        in: path
+        description: Номер договора.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentLink'
+      responses:
+        "200":
+          description: Ссылка на оплату
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentLink'
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/individual/mortgage/quotes:
+    post:
+      tags:
+      - mortgage
+      summary: "ипотека, физ.лицо. Расчет стоимости страхового полиса."
+      description: "Выполняет расчет стоимости страхового полиса, страхование ипот\
+        еки, страхователь физ.лицо"
+      requestBody:
+        description: "Содержит данные для расчета страхового полиса, например, фам\
+          илию, имя и дату рождения застрахованного и т.д."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyIndividualMortgage'
+      responses:
+        "200":
+          description: Договор страхования ипотека с физ.лицом
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyIndividualMortgage'
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/individual/mortgage/policies:
+    post:
+      tags:
+      - mortgage
+      summary: "ипотека, физ.лицо. Создание страхового полиса."
+      description: Выполняет расчет стоимости страхового полиса по переданным параметрам
+        и создает страховой полис.
+      requestBody:
+        description: "Содержит данные для расчета и создания страхового полиса, на\
+          пример, фамилию, имя и дату рождения застрахованного и т.д."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyIndividualMortgage'
+      responses:
+        "201":
+          description: Договор страхования ипотека с физ.лицом
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyIndividualMortgage'
+        "202":
+          description: "Операция начата, но не завершена к таймауту. Статус выполн\
+            ения можно запросить позже."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpAccepted'
+              example:
+                href: http://.../v2/operations?id=214123412341223
+                method: GET
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/individual/mortgage/policies/{policy_nr}/paymentLink:
+    post:
+      tags:
+      - mortgage
+      summary: Возвращает ссылку на оплату договора.
+      description: Запрос на получение ссылки на страницу оплаты.
+      parameters:
+      - name: policy_nr
+        in: path
+        description: Номер договора.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentLink'
+      responses:
+        "200":
+          description: Ссылка на оплату
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentLink'
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/corporate/mortgage/policies/{policy_nr}/confirm:
+    post:
+      tags:
+      - mortgage
+      summary: Перевод полиса в статус оплачен.
+      description: Подтверждение оплаты полиса на стороне партнера.
+      parameters:
+      - name: policy_nr
+        in: path
+        description: Номер договора.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentConfirmation'
+      responses:
+        "200":
+          description: Подтверждение оплаты полиса партнером
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentConfirmation'
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/individual/osago/quotes:
+    post:
+      tags:
+      - osago
+      summary: "ОСАГО, физ.лицо. Расчет стоимости страхового полиса."
+      description: "Выполняет расчет стоимости страхового полиса, страхование от Н\
+        С, страхователь физ.лицо"
+      requestBody:
+        description: "Содержит данные для расчета страхового полиса, например, фам\
+          илию, имя и дату рождения застрахованного и т.д."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyIndividualOsago'
+      responses:
+        "200":
+          description: Договор страхования ОСАГО с физ.лицом
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyIndividualOsago'
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/individual/osago/drafts:
+    post:
+      tags:
+      - osago
+      summary: "ОСАГО, физ.лицо. Создание проекта страхового полиса."
+      description: Выполняет расчет стоимости страхового полиса по переданным параметрам
+        и создает проект страховой полис.
+      requestBody:
+        description: "Содержит данные для расчета и создания страхового полиса, на\
+          пример, фамилию, имя и дату рождения застрахованного и т.д."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyIndividualOsago'
+      responses:
+        "201":
+          description: Договор страхования ОСАГО с физ.лицом
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyIndividualOsago'
+        "202":
+          description: "Операция начата, но не завершена к таймауту. Статус выполн\
+            ения можно запросить позже."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpAccepted'
+              example:
+                href: http://.../v2/operations?id=214123412341223
+                method: GET
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/individual/osago/drafts/{draft_id}/confirm:
+    post:
+      tags:
+      - osago
+      summary: "ОСАГО, физ.лицо. Подтверждение проекта страхового полиса."
+      description: Выполняет расчет стоимости страхового полиса по переданным параметрам
+        и создает проект страховой полис.
+      parameters:
+      - name: draft_id
+        in: path
+        description: Номер проекта страхового полиса.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: "Содержит данные для расчета и создания страхового полиса, на\
+          пример, фамилию, имя и дату рождения застрахованного и т.д."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OsagoConfirmDraft'
+      responses:
+        "200":
+          description: Договор страхования ОСАГО с физ.лицом
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyIndividualOsago'
+        "202":
+          description: "Операция начата, но не завершена к таймауту. Статус выполн\
+            ения можно запросить позже."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpAccepted'
+              example:
+                href: http://.../v2/operations?id=214123412341223
+                method: GET
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+  /sales/v2/individual/osago/policies/{policy_nr}/paymentLink:
+    post:
+      tags:
+      - osago
+      summary: Возвращает ссылку на оплату договора.
+      description: Запрос на получение ссылки на страницу оплаты.
+      parameters:
+      - name: policy_nr
+        in: path
+        description: Номер договора.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentLink'
+      responses:
+        "200":
+          description: Ссылка на оплату
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentLink'
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-10005
+                errorDescription: ошибка в формате даты
+        "401":
+          description: Unauthorized (JWT not valid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00005
+                errorDescription: ошибка авторизации
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBadResponse'
+              example:
+                errorCode: ERR-00105
+                errorDescription: сервер недоступен
+components:
+  schemas:
+    Product:
+      required:
+      - code
+      type: object
+      properties:
+        code:
+          type: string
+          description: "код страхового продукта (accident_1, acident_2 )"
+        description:
+          type: string
+          description: описание
+      description: Страховой продукт
+    PolicyStatus:
+      required:
+      - code
+      type: object
+      properties:
+        code:
+          type: string
+          description: "код ( NEW, PAID, CANCELED)"
+        description:
+          type: string
+          description: описание
+      description: Статус договора
+    Address:
+      type: object
+      properties:
+        typeCode:
+          type: string
+          description: тип адреса (код)
+          example: REGISTRATION
+        countryCode:
+          type: string
+          description: код страны (ISO2)
+          example: RU
+          default: RU
+        region:
+          type: string
+          description: наименование региона
+          example: г Москва
+        city:
+          type: string
+          description: город
+          example: Москва
+        street:
+          type: string
+          description: улица
+          example: Академика Королева
+        house:
+          type: string
+          description: номер дома
+          example: "3"
+        building:
+          type: string
+          description: строение
+          example: "2"
+        flat:
+          type: string
+          description: квартира
+          example: "25"
+        room:
+          type: string
+          description: комната
+          example: "2"
+        zipCode:
+          type: string
+          description: индекс
+          example: "129515"
+        kladrId:
+          type: string
+          description: код по кладр
+          example: "7700000000015450062"
+        fiasId:
+          type: string
+          description: код по фиас
+          example: f64c75cd-a640-41ed-9893-c1aaef58e638
+        addressStr:
+          type: string
+          description: строка адреса
+          example: "129515, г.Москва, ул.Академика Королева, д.2, к.3, кв.25"
+        addressStrEn:
+          type: string
+          description: адресная строка по английски
+          example: "129515, г.Moscow"
+      description: Адрес
+    Document:
+      type: object
+      properties:
+        typeCode:
+          type: string
+          description: код типа документа (справочник)
+        serial:
+          type: string
+          description: серия документа
+        number:
+          type: string
+          description: номер документа
+        dateIssue:
+          type: string
+          description: дата выдачи
+        validUntil:
+          type: string
+          description: действительно до
+        whom:
+          type: string
+          description: кем выдан
+        divisionCode:
+          type: string
+          description: код подразделения
+      description: документ
+    Person:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: имя
+        lastName:
+          type: string
+          description: фамилия
+        middleName:
+          type: string
+          description: отчество
+        birthDate:
+          type: string
+          description: дата рождения
+        fullName:
+          type: string
+          description: полное ФИО.
+        fullNameEn:
+          type: string
+          description: полное ФИО аннгл.
+        birthPlace:
+          type: string
+          description: Место рождения
+          example: Москва
+        citizenship:
+          type: string
+          description: Гражданство. Код страны. ISO2
+          example: RU
+          default: RU
+        gender:
+          type: string
+          description: пол
+        familyState:
+          type: string
+          description: семейное положение
+          default: SINGLE
+        isPublicOfficial:
+          type: boolean
+          description: признак ПДЛ (публичного должностного лица).
+      description: объект - физ лицо
+    Organization:
+      required:
+      - fullname
+      type: object
+      properties:
+        country:
+          type: string
+          description: код страны регистрации (ISO2)
+        inn:
+          type: string
+          description: ИНН
+        fullName:
+          type: string
+          description: полное наименование юл.лица
+        fullNameEn:
+          type: string
+          description: полное наименование аннгл.
+        shortName:
+          type: string
+          description: краткое наименование юр.лица
+        legalForm:
+          type: string
+          description: организацинно правовая форма
+          example: OOO
+        kpp:
+          type: string
+          description: кпп
+        ogrn:
+          type: string
+          description: огрн
+        okpo:
+          type: string
+          description: окпо
+        bic:
+          type: string
+          description: бик
+      description: объект юр лицо
+    Cover:
+      required:
+      - code
+      type: object
+      properties:
+        code:
+          type: string
+          description: код покрытия
+        description:
+          type: string
+          description: описание
+      description: покрытие
+    Risks:
+      type: object
+      properties:
+        cover:
+          $ref: '#/components/schemas/Cover'
+        risk:
+          type: array
+          description: список покрываемых рисков
+          items:
+            type: string
+            description: код риска
+        startDate:
+          type: string
+          description: дата начала покрытия
+        endDate:
+          type: string
+          description: дата окончая покрытия
+        sumInsured:
+          type: number
+          description: страховая сумма в рублях
+          example: 1000
+        premium:
+          type: number
+          description: премия по покрытию
+          example: 1000
+        deductibleType:
+          type: string
+          description: тип франшизы
+        deductible:
+          type: number
+          description: франшиза
+          example: 100
+        sumInsuredCur:
+          type: number
+          description: страховая сумма с валюте
+          example: 1000
+        premiumCur:
+          type: number
+          description: премия в валюте
+          example: 1000
+        deductibleCur:
+          type: number
+          description: франшиза в валюте
+          example: 100
+        deductiblePercent:
+          type: number
+          description: франшиза процент от заявленной суммы
+          example: 10
+        deductibleMin:
+          type: number
+          description: минимальный размер франшизы
+          example: 1000
+      description: покрытие по объекту страхования
+    InsuredObject:
+      type: object
+      properties:
+        packageCode:
+          type: string
+          description: 'Код страхового пакета - набора обязательных покрытий '
+          example: "1"
+        covers:
+          type: array
+          description: набор покрытий по объекту страхования
+          items:
+            $ref: '#/components/schemas/Risks'
+      description: объект страхования
+    InsObjectPerson:
+      type: object
+      properties:
+        person:
+          $ref: '#/components/schemas/Person'
+        phone:
+          $ref: '#/components/schemas/Phone'
+        email:
+          $ref: '#/components/schemas/Email'
+        passport:
+          $ref: '#/components/schemas/Document'
+        address:
+          $ref: '#/components/schemas/Address'
+        placeOfWork:
+          $ref: '#/components/schemas/PlaceOfWork'
+      description: объект страхования физ лицо
+      allOf:
+      - $ref: '#/components/schemas/InsuredObject'
+    InsPersonAdditionalFactors:
+      type: object
+      properties:
+        isProfessional:
+          type: boolean
+          description: prof
+        isSporttime:
+          type: boolean
+          description: спорт
+        isSumInsuredInCredit:
+          type: boolean
+          description: страховая сумма в теле кредита
+        typeOfSport:
+          type: string
+          description: вид спорта
+      description: "факторы, влияющие на разные виды страховых продуктов"
+    InsuredPerson:
+      type: object
+      properties:
+        person:
+          $ref: '#/components/schemas/Person'
+        phone:
+          $ref: '#/components/schemas/Phone'
+        email:
+          $ref: '#/components/schemas/Email'
+        passport:
+          $ref: '#/components/schemas/Document'
+        address:
+          $ref: '#/components/schemas/Address'
+        placeOfWork:
+          $ref: '#/components/schemas/PlaceOfWork'
+        plaсeOfStudy:
+          $ref: '#/components/schemas/PlaceOfStudy'
+        additionalFactors:
+          $ref: '#/components/schemas/InsPersonAdditionalFactors'
+      description: объект страхования для личного страхования
+    InsObjectPersonal:
+      properties:
+        insureds:
+          type: array
+          items:
+            $ref: '#/components/schemas/InsuredPerson'
+        insured:
+          $ref: '#/components/schemas/InsuredPerson'
+      description: объект страхования для личного страхования. физик или группа физиков
+      allOf:
+      - $ref: '#/components/schemas/InsuredObject'
+    ConsumerElectronic:
+      type: object
+      properties:
+        deviceName:
+          type: string
+          description: наименование устройства
+        deviceTypeCode:
+          type: string
+          description: тип устройства ( код )
+        tradeMark:
+          type: string
+          description: производитель
+        model:
+          type: string
+          description: модель
+        serialNr:
+          type: string
+          description: серийный номер
+        licenseKey:
+          type: string
+          description: ключ
+        imei:
+          type: string
+          description: код имеа
+        osName:
+          type: string
+          description: название операционной системы
+        osVersion:
+          type: string
+          description: версия ОС
+        countryCode:
+          type: string
+          description: код страны производителя
+      description: потребительская электроника
+    InsObjectConsumerElectronic:
+      properties:
+        device:
+          $ref: '#/components/schemas/ConsumerElectronic'
+      description: объект страхования - потребительская электроника
+      allOf:
+      - $ref: '#/components/schemas/InsuredObject'
+    Policy:
+      required:
+      - product
+      type: object
+      properties:
+        policyNumber:
+          type: string
+          description: номер договора
+        product:
+          $ref: '#/components/schemas/Product'
+        status:
+          $ref: '#/components/schemas/PolicyStatus'
+        startDate:
+          type: string
+          description: дата начала действия договора
+        endDate:
+          type: string
+          description: дата окончания действия  договора
+        issueDate:
+          type: string
+          description: дата продажи полиса. заполняется партнером
+        createDate:
+          type: string
+          description: дата создания полиса в системе страховщика.
+        paymentDate:
+          type: string
+          description: дата оплаты. первый взнос
+        cancellationDate:
+          type: string
+          description: дата расторжения договора по любой причине
+        premium:
+          type: number
+          description: размер премии по договору в рублях
+          example: 1000
+        premiumCur:
+          type: number
+          description: "премия в валюте договора, если не рубли"
+          example: 1000
+        currencyCode:
+          type: string
+          description: "код валюты, если страховая сумма в валюте"
+        currencyRate:
+          type: number
+          description: "курс валюты, на дату страхования"
+        placeOfIssue:
+          type: string
+          description: место выдачи договора
+        draftId:
+          type: string
+          description: код проекта договора
+        beneficiaries:
+          type: array
+          description: список выгодопреобретателей по договору
+          items:
+            $ref: '#/components/schemas/Beneficiary'
+        additionalProperties:
+          $ref: '#/components/schemas/AdditionalProperties'
+        infoList:
+          $ref: '#/components/schemas/Infolist'
+      description: договор страхования
+    AdditionalProperties:
+      type: object
+      properties:
+        pos:
+          type: string
+          description: точка продажи
+        discountKVPercent:
+          type: number
+          description: Скидка за чёт КВ агента
+        promocode:
+          type: string
+          description: промокод
+      description: "прочие параметры, передаваемые вмете с договором, но не относя\
+        щиеся к страхованию"
+    PlaceOfWork:
+      type: object
+      properties:
+        organization:
+          type: string
+          description: место работы
+        occupationType:
+          type: string
+          description: Фиксированное значение = по найму | собственное дело | нет
+        occupation:
+          type: string
+          description: "должность, профессия"
+        address:
+          type: string
+          description: юр. адрес работодателя
+        phone:
+          type: string
+          description: телефон
+      description: место работы
+    PlaceOfStudy:
+      type: object
+      properties:
+        university:
+          type: string
+          description: university
+        faculty:
+          type: string
+          description: faculty
+        course:
+          type: string
+          description: course
+      description: place of study
+    PolicyHolderPerson:
+      type: object
+      properties:
+        person:
+          $ref: '#/components/schemas/Person'
+        phone:
+          $ref: '#/components/schemas/Phone'
+        email:
+          $ref: '#/components/schemas/Email'
+        passport:
+          $ref: '#/components/schemas/Document'
+        address:
+          $ref: '#/components/schemas/Address'
+        placeOfWork:
+          $ref: '#/components/schemas/PlaceOfWork'
+        inn:
+          type: string
+      description: страхователь - физ.лицо
+    PolicyHolderOrganization:
+      type: object
+      properties:
+        organization:
+          $ref: '#/components/schemas/Organization'
+        phone:
+          $ref: '#/components/schemas/Phone'
+        email:
+          $ref: '#/components/schemas/Email'
+        document:
+          $ref: '#/components/schemas/Document'
+        address:
+          $ref: '#/components/schemas/Address'
+        representative:
+          $ref: '#/components/schemas/RepresentativePerson'
+      description: страхователь - юр.лицо
+    RepresentativePerson:
+      type: object
+      properties:
+        person:
+          $ref: '#/components/schemas/Person'
+        phone:
+          $ref: '#/components/schemas/Phone'
+        email:
+          $ref: '#/components/schemas/Email'
+        document:
+          $ref: '#/components/schemas/Document'
+        address:
+          $ref: '#/components/schemas/Address'
+        position:
+          type: string
+          description: Должность
+          example: Директор по продажам
+      description: представитель юр лица
+    PolicyIndividualAccident:
+      type: object
+      properties:
+        policyHolder:
+          $ref: '#/components/schemas/PolicyHolderPerson'
+        insuredObject:
+          $ref: '#/components/schemas/InsObjectPersonal'
+      description: "договор страхования от НС, физ.лица"
+      allOf:
+      - $ref: '#/components/schemas/Policy'
+    PolicyCorporateAccident:
+      type: object
+      properties:
+        policyHolder:
+          $ref: '#/components/schemas/PolicyHolderOrganization'
+        insuredObject:
+          $ref: '#/components/schemas/InsObjectPersonal'
+      description: "договор страхования от НС, юр.лица"
+      allOf:
+      - $ref: '#/components/schemas/Policy'
+    PolicyIndividualMedical:
+      type: object
+      properties:
+        policyHolder:
+          $ref: '#/components/schemas/PolicyHolderPerson'
+        insuredObject:
+          type: array
+          items:
+            $ref: '#/components/schemas/InsObjectPersonal'
+      description: "договор медицинского страхования, физ.лица"
+      allOf:
+      - $ref: '#/components/schemas/Policy'
+    PolicyIndividualConsumerElectronic:
+      type: object
+      properties:
+        policyHolder:
+          $ref: '#/components/schemas/PolicyHolderPerson'
+        insured:
+          $ref: '#/components/schemas/InsObjectConsumerElectronic'
+      description: "договор страхования новой техники, физ.лица"
+      allOf:
+      - $ref: '#/components/schemas/Policy'
+    PolicyCorporateCargo:
+      type: object
+      properties:
+        policyHolder:
+          $ref: '#/components/schemas/PolicyHolderOrganization'
+        insuredObject:
+          $ref: '#/components/schemas/InsObjectCargo'
+      description: "договор страхования перевозки грузов, юр.лица"
+      allOf:
+      - $ref: '#/components/schemas/Policy'
+    Driver:
+      type: object
+      properties:
+        person:
+          $ref: '#/components/schemas/Person'
+        driversLicense:
+          $ref: '#/components/schemas/Document'
+        driveExperience:
+          type: string
+          description: дата начала стажа
+      description: водитель
+    BeneficiaryPerson:
+      required:
+      - person
+      type: object
+      properties:
+        person:
+          $ref: '#/components/schemas/Person'
+        address:
+          $ref: '#/components/schemas/Address'
+        phone:
+          $ref: '#/components/schemas/Phone'
+      description: "выгодопреобретатель, физ.лицо"
+    BeneficiaryOrganization:
+      required:
+      - organization
+      type: object
+      properties:
+        organization:
+          $ref: '#/components/schemas/Organization'
+        address:
+          $ref: '#/components/schemas/Address'
+        phone:
+          $ref: '#/components/schemas/Phone'
+      description: "выгодопреобретатель, юр.лицо"
+    BeneficiaryRisk:
+      type: object
+      properties:
+        risk:
+          type: string
+          description: код риска
+        percent:
+          maximum: 100
+          minimum: 0
+          type: number
+          description: процент выгодопреобретателя по риску. от 0 до 100.
+          default: 100
+      description: доля выгодопреобретателя по рискам
+    Beneficiary:
+      type: object
+      properties:
+        beneficiaryPerson:
+          $ref: '#/components/schemas/BeneficiaryPerson'
+        beneficiaryOrganization:
+          $ref: '#/components/schemas/BeneficiaryOrganization'
+        percents:
+          type: array
+          items:
+            $ref: '#/components/schemas/BeneficiaryRisk'
+      description: выгодопреобретатель по договору. физ. или юр. лицо.
+    VehicleModel:
+      type: object
+      properties:
+        mark:
+          type: string
+          description: марка
+        model:
+          type: string
+          description: модель
+        code:
+          type: string
+          description: код по справочнику
+      description: модель автомобиля
+    Vehicle:
+      type: object
+      properties:
+        vehicleModel:
+          $ref: '#/components/schemas/VehicleModel'
+        vehicleTypeCode:
+          type: string
+          description: код
+        vin:
+          type: string
+          description: вин номер
+        bodyNumber:
+          type: string
+          description: номер кузова
+        chassisNumber:
+          type: string
+          description: номер шасси
+        licensePlate:
+          type: string
+          description: номер
+        countryCode:
+          type: string
+          description: код страны регистрации
+        power:
+          type: string
+          description: мощность в л.с.
+          example: "98.3"
+        yearIssue:
+          type: string
+          description: год выпуска
+          example: "2003"
+        usedSince:
+          type: string
+          description: дата начала использования
+          example: 2003-01-01
+        mileage:
+          type: string
+          description: пробег
+          example: "20000"
+      description: автомобиль
+    VehicleOwnerPerson:
+      required:
+      - person
+      type: object
+      properties:
+        person:
+          $ref: '#/components/schemas/Person'
+        passport:
+          $ref: '#/components/schemas/Document'
+        address:
+          $ref: '#/components/schemas/Address'
+      description: "владелец авто, физ.лицо"
+    VehicleOwnerOrganization:
+      required:
+      - organization
+      type: object
+      properties:
+        organization:
+          $ref: '#/components/schemas/Organization'
+        document:
+          $ref: '#/components/schemas/Document'
+        address:
+          $ref: '#/components/schemas/Address'
+      description: "владелец авто, юр.лицо"
+    VehicleOwner:
+      type: object
+      properties:
+        vehicleOwnerPerson:
+          $ref: '#/components/schemas/VehicleOwnerPerson'
+        vehicleOwnerOrganization:
+          $ref: '#/components/schemas/VehicleOwnerOrganization'
+      description: владелец авто
+    InsObjectVehicle:
+      type: object
+      properties:
+        vehicle:
+          $ref: '#/components/schemas/Vehicle'
+        vehicleDocument:
+          $ref: '#/components/schemas/Document'
+        owner:
+          $ref: '#/components/schemas/VehicleOwner'
+        trailer:
+          type: boolean
+          description: есть прицеп
+        transit:
+          type: boolean
+          description: признак транзита
+        lease:
+          type: boolean
+          description: авто в кредите
+        purpose:
+          type: string
+          description: "цель использования авто - личная, такси и т.д."
+          example: PERSONAL
+        drivers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Driver'
+      description: объект страхования автомобиль
+      allOf:
+      - $ref: '#/components/schemas/InsuredObject'
+    Cargo:
+      properties:
+        cargoType:
+          type: string
+          description: наименование груза
+        cargoTypeEn:
+          type: string
+          description: наименование груза англ.
+        cargoCategory:
+          type: string
+          description: "ОЦГ - особо ценный груз, ПГ - прочий груз"
+        cargoСondition:
+          type: string
+          description: "Категория груза. 1-новый, 2-б/у"
+        weight:
+          type: string
+          description: масса груза
+          example: 20 т.
+        quantity:
+          type: string
+          description: количество мест
+          example: 13 мест
+        packaging:
+          type: string
+          description: упаковка
+          example: бумажные коробки
+        packagingEn:
+          type: string
+          description: упаковка англ
+          example: papar boxes
+        containerNumbers:
+          type: array
+          description: номера контейнеров через ;
+          items:
+            type: string
+        containerAmount:
+          type: string
+          description: количество контейнеров
+          example: "22"
+      description: груз.
+    CargoTransport:
+      type: object
+      properties:
+        nameRu:
+          type: string
+          description: наименование транскорта по-русски
+          example: Авто
+        nameEn:
+          type: string
+          description: натменование транспорта по-английски
+          example: Avia
+        registrationNumber:
+          type: string
+          description: регитрационный номер
+          example: A123AA99
+      description: транспорт используемый для перевозки
+    CargoDelivery:
+      type: object
+      properties:
+        shippingDocument:
+          $ref: '#/components/schemas/Document'
+        transports:
+          type: array
+          description: транспорт используемый для перевозки
+          items:
+            $ref: '#/components/schemas/CargoTransport'
+        conditionCarriage:
+          type: string
+          description: Условия перевозки
+          example: Холодильная камера
+        RequirementTransport:
+          type: string
+          description: Доп. требование к ТС
+          example: Тент
+        departureAddress:
+          $ref: '#/components/schemas/Address'
+        destinationAddress:
+          $ref: '#/components/schemas/Address'
+        transitAddresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+      description: Параметры доставки
+    InsObjectCargo:
+      type: object
+      properties:
+        cargo:
+          $ref: '#/components/schemas/Cargo'
+        delivery:
+          $ref: '#/components/schemas/CargoDelivery'
+      description: объект страхования перевозка груза.
+      allOf:
+      - $ref: '#/components/schemas/InsuredObject'
+    OsagoPeriodsOfUse:
+      properties:
+        startDate1:
+          type: string
+        endDate1:
+          type: string
+        startDate2:
+          type: string
+        endDate2:
+          type: string
+        startDate3:
+          type: string
+        endDate3:
+          type: string
+      description: период использования авто ( ОСАГО )
+    PolicyIndividualOsago:
+      type: object
+      properties:
+        policyHolder:
+          $ref: '#/components/schemas/PolicyHolderPerson'
+        insuredObject:
+          $ref: '#/components/schemas/InsObjectVehicle'
+        periods:
+          $ref: '#/components/schemas/OsagoPeriodsOfUse'
+      description: договор страхования ОСАГО с физ.лицом
+      allOf:
+      - $ref: '#/components/schemas/Policy'
+    PolicyCorporateOsago:
+      type: object
+      properties:
+        policyHolder:
+          $ref: '#/components/schemas/PolicyHolderOrganization'
+        insuredObject:
+          $ref: '#/components/schemas/InsObjectVehicle'
+        periods:
+          $ref: '#/components/schemas/OsagoPeriodsOfUse'
+      description: договор страхования ОСАГО с юр.лицом
+      allOf:
+      - $ref: '#/components/schemas/Policy'
+    PolicyIndividualCasco:
+      type: object
+      properties:
+        policyHolder:
+          $ref: '#/components/schemas/PolicyHolderPerson'
+        insuredObject:
+          $ref: '#/components/schemas/InsObjectVehicle'
+      description: договор страхования КАСКО с физ.лицом
+      allOf:
+      - $ref: '#/components/schemas/Policy'
+    PolicyCorporateCasco:
+      type: object
+      properties:
+        policyHolder:
+          $ref: '#/components/schemas/PolicyHolderOrganization'
+        insuredObject:
+          $ref: '#/components/schemas/InsObjectVehicle'
+      description: договор страхования КАСКО с юр.лицом
+      allOf:
+      - $ref: '#/components/schemas/Policy'
+    Phone:
+      required:
+      - phoneNumber
+      type: object
+      properties:
+        phoneNumber:
+          type: string
+          description: номер телефона
+        contactPerson:
+          type: string
+          description: контактное лицо
+      description: телефон
+    Email:
+      type: string
+      description: email
+    PropertyType:
+      required:
+      - code
+      type: object
+      properties:
+        code:
+          type: string
+          description: "код объекта недвижимости (FLAT (Квартира), ROOM (Комната),\
+            \ RESIDENTIAL_BUILDING (Жилой дом), LAND_PLOT (Земельный участок), RESIDENTIAL_BUILDING_WITH_LAND_PLOT\
+            \ (Жилой дом с земельным участком), APARTMENTS (Апартаменты), TOWNHOUSE\
+            \ (Таунхаус), NONRESIDENTIAL_PREMISE (Нежилое помещение (кроме апартам\
+            ентов)) , OTHER (Иное)  )"
+        description:
+          type: string
+          description: описание
+      description: Тип объекта недвижимости
+    Property:
+      type: object
+      properties:
+        propertyType:
+          $ref: '#/components/schemas/PropertyType'
+        propertyTypeOther:
+          type: string
+          description: "тип объекта недвижимости, если отличный от справочника"
+        address:
+          $ref: '#/components/schemas/Address'
+        cadastrNr:
+          type: string
+          description: Кадастровый номер квартиры.
+          example: 77:07:0018002:2590
+        wallsMaterial:
+          type: string
+          description: "Материал строения. Обязательное для всех типов недвижимост\
+            и, кроме LAND_PLOT"
+          example: "Каменные, кирпичные"
+        wallsMaterialOther:
+          type: string
+          description: "Материал строения иное. Обязательное для всех типов недвиж\
+            имости, кроме LAND_PLOT"
+          example: "Каменные, кирпичные"
+        ceilingMaterial:
+          type: string
+          description: Материал перекрытия.
+          example: Смешанные
+        ceilingMaterialOther:
+          type: string
+          description: Материал перекрытия иное.
+          example: Смешанные
+        constructionYear:
+          type: string
+          description: Год постройки.
+        repairYear:
+          type: string
+          description: Год кап ремонта.
+        buildingArea:
+          type: number
+          description: Площадь объекта (кв м).
+        landArea:
+          type: number
+          description: Площадь земельного участка (кв м).
+        buildingValue:
+          type: number
+          description: Стоимость объекта (в копейках).
+        wearCoefficient:
+          type: number
+          description: Износ объекта (в %).
+        numberOfFloors:
+          type: number
+          description: Количество этажей в здании
+        propertyLocation:
+          type: string
+          description: Расположение объекта.
+          example: В многоквартирном доме
+        isNewBuilding:
+          type: string
+          description: признак новостройки
+        propertyValue:
+          type: number
+          description: Стоимость объекта (в копейках)
+      description: Объект недвижимости.
+    InsObjectProperty:
+      type: object
+      properties:
+        property:
+          $ref: '#/components/schemas/Property'
+      description: объект страхования строение.
+      allOf:
+      - $ref: '#/components/schemas/InsuredObject'
+    BorrowerPerson:
+      required:
+      - person
+      type: object
+      properties:
+        person:
+          $ref: '#/components/schemas/Person'
+      description: "заемщик, физ.лицо"
+    Borrower:
+      type: object
+      properties:
+        borrowerPerson:
+          $ref: '#/components/schemas/BorrowerPerson'
+        percents:
+          type: number
+      description: заемщик по договору. физ.  лицо.
+    MortgageContract:
+      type: object
+      properties:
+        startDate:
+          type: string
+          description: Дата начала действия ипотечного договора.
+        endDate:
+          type: string
+          description: Дата окончания действия ипотечного договора.
+        contractNumber:
+          type: string
+          description: Номер ипотечного договора.
+        city:
+          type: string
+          description: Город заключения договора.
+        region:
+          type: string
+          description: Регион заключения договора.
+        rate:
+          type: string
+          description: Процент по ипотечному договору.
+        loanAmount:
+          type: string
+          description: Остаток задолжености по ипотечному договору.
+        property:
+          $ref: '#/components/schemas/Property'
+        borrowers:
+          type: array
+          description: Заемщики по ипотечному договору.
+          items:
+            $ref: '#/components/schemas/Borrower'
+      description: ИПОТЕЧНЫЙ ДОГОВОР
+    PolicyIndividualMortgage:
+      type: object
+      properties:
+        mortgageContract:
+          $ref: '#/components/schemas/MortgageContract'
+        policyHolder:
+          $ref: '#/components/schemas/PolicyHolderPerson'
+        insuredPersons:
+          type: array
+          items:
+            $ref: '#/components/schemas/InsObjectPerson'
+        insuredProperty:
+          $ref: '#/components/schemas/InsObjectProperty'
+      description: "договор страхования ипотеки, физ.лица"
+      allOf:
+      - $ref: '#/components/schemas/Policy'
+      - $ref: '#/components/schemas/AdditionalMortgage'
+    AdditionalMortgage:
+      type: object
+      properties:
+        PercentageOfOSZ:
+          type: number
+          description: процент от ОСЗ
+    PaymentLink:
+      required:
+      - failUrl
+      - successUrl
+      type: object
+      properties:
+        draftId:
+          type: string
+          description: ИД неоплаченного договора
+        premium:
+          type: number
+          description: размер премии
+        successUrl:
+          type: string
+          description: страница перехода при успешной оплате
+        failUrl:
+          type: string
+          description: страница перехода при ошибке
+        paymentUrl:
+          type: string
+          description: страница оплаты
+      description: запрос на получение ссылки на страницу оплаты
+    PaymentConfirmation:
+      required:
+      - amount
+      - draftId
+      type: object
+      properties:
+        draftId:
+          type: string
+          description: ИД неоплаченного договора
+        premium:
+          type: number
+          description: размер премии
+        policyPDF:
+          type: string
+          description: файл с ПФ
+      description: "запрос, подтверждение оплаты"
+    PolicyFile:
+      type: object
+      properties:
+        fileTypeCode:
+          type: string
+        policyPDF:
+          type: string
+      description: получение печатной формы
+    PolicyFiles:
+      type: object
+      properties:
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyFile'
+      description: получение печатной формы
+    Infolist:
+      type: object
+      properties:
+        partnerCode:
+          type: string
+          description: Код партнера
+          example: VSK
+        policyKind:
+          type: string
+          description: "Тип полиса ((1) - онлайн, (2) - офлайн)"
+        channelTypeId:
+          type: string
+          description: '# Канал продаж'
+          example: "410"
+        contractDivisionId:
+          type: string
+          description: "ID подразделения ВСК, ответственного за договор"
+          example: 00.97.01.12.01
+        contractResponsibleId:
+          type: string
+          description: "ID пользователя ВСК, ответственного за договор"
+          example: "42354"
+        agentKV:
+          type: string
+          description: '# Комиссионное вознаграждение агента'
+          example: "55"
+        agentKvRetention:
+          type: string
+          description: "RETENTION # Булевый тип. Удержание в КВ Агента. Агентов по\
+            \ договору "
+          example: "false"
+        agentContractNumber:
+          type: string
+          description: "AGENT_CONTRACT_NUMBER: Номер агентского договора"
+          example: "16539460001"
+        agentName:
+          type: string
+      description: доп информация о продавце
+    Error:
+      type: object
+      properties:
+        errorCode:
+          type: string
+        errorDescription:
+          type: string
+    Errors:
+      type: array
+      items:
+        $ref: '#/components/schemas/Error'
+    OsagoConfirmDraft:
+      type: object
+      properties:
+        code:
+          type: string
+          description: проверочный код из СМС
+    HttpBadResponse:
+      allOf:
+      - $ref: '#/components/schemas/Errors'
+    HttpAccepted:
+      type: object
+      properties:
+        href:
+          type: string
+          description: URL. ссылка на результат запущенной по запросу операции.
+        method:
+          type: string
+          description: HTTP-метод для запроса URL из ключа href.
+  responses:
+    PolicyIndividualMortgage:
+      description: Договор страхования ипотека с физ.лицом
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PolicyIndividualMortgage'
+    PolicyIndividualOsago:
+      description: Договор страхования ОСАГО с физ.лицом
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PolicyIndividualOsago'
+    PolicyIndividualCasco:
+      description: Договор страхования КАСКО с физ.лицом
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PolicyIndividualCasco'
+    PolicyCorporateCasco:
+      description: Договор страхования КАСКО с юр.лицом
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PolicyCorporateCasco'
+    PolicyIndividualAccident:
+      description: Договор страхования НС с физ.лицом
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PolicyIndividualAccident'
+          examples:
+            example1:
+              $ref: '#/components/examples/accidentPolicy1'
+    PolicyCorporateAccident:
+      description: Договор страхования НС с юр.лицом
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PolicyCorporateAccident'
+    PolicyIndividualMedical:
+      description: Договор страхования НС с физ.лицом
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PolicyIndividualMedical'
+    PolicyCorporateCargo:
+      description: Договор страхования карго с юр.лицом
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PolicyCorporateCargo'
+    PolicyIndividualConsumerElectronic:
+      description: Договор страхования устройств с физ.лицом
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PolicyIndividualConsumerElectronic'
+    PaymentLink:
+      description: Ссылка на оплату
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PaymentLink'
+    PaymentConfirmation:
+      description: Подтверждение оплаты полиса партнером
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PaymentConfirmation'
+    OperationBody:
+      description: Результат выполнения процесса.
+      content:
+        application/json:
+          schema:
+            type: string
+    Http-202:
+      description: "Операция начата, но не завершена к таймауту. Статус выполнения\
+        \ можно запросить позже."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HttpAccepted'
+          example:
+            href: http://.../v2/operations?id=214123412341223
+            method: GET
+    Http-400:
+      description: Bad Request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HttpBadResponse'
+          example:
+            errorCode: ERR-10005
+            errorDescription: ошибка в формате даты
+    Http-401:
+      description: Unauthorized (JWT not valid).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HttpBadResponse'
+          example:
+            errorCode: ERR-00005
+            errorDescription: ошибка авторизации
+    Http-404:
+      description: Данные не найдены.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HttpBadResponse'
+          example:
+            errorCode: ERR-00005
+            errorDescription: Данные не найдены.
+    Http-503:
+      description: Service Unavailable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HttpBadResponse'
+          example:
+            errorCode: ERR-00105
+            errorDescription: сервер недоступен
+  parameters:
+    policyNr:
+      name: policy_nr
+      in: path
+      description: Номер договора.
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+    draftId:
+      name: draft_id
+      in: path
+      description: Номер проекта страхового полиса.
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+    operId:
+      name: oper_id
+      in: query
+      description: Номер операции.
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: string
+  examples:
+    accidentPolicy1:
+      summary: request1
+      description: Пример для создания полиса Accident.
+      value:
+        product:
+          code: ACCIDENT
+        startDate: 2021-06-14T00:00:00+03:00
+        endDate: 2021-06-23T23:59:59+03:00
+        policyHolder:
+          person:
+            firstName: ЕЛЕНА
+            lastName: ИВАНИЩЕВА
+            middleName: АЛЕКСАНДРОВНА
+            birthDate: 01.01.2001
+            gender: F
+            phone:
+              phoneNumber: "78889992233"
+            email: mail@mail.ru
+        covers:
+        - risk: ACCIDENT_DEATH
+          insAmount: 5000000
+        - risk: ACCIDENT_DISABILITY
+          insAmount: 5000000
+        - risk: TIMEDISABILITY_ACCIDENT
+          insAmount: 5000000
+        isProfessional: false
+        isSporttime: true
+        typeOfSport: "академическая гребля, бадминтон, бейсбол, биатлон, верховая\
+          \ езда, конный спорт, волейбол, зорбинг, лыжные гонки, минифутбол, охота\
+          \ и рыболовство, плавание, подводное плавание и ныряние, прыжки в воду,\
+          \ ракетбол, реал теннис, скейтборд, софтбол, спортивное ориентирование,\
+          \ спортивный туризм, стрельба из арбалета, стрельба из лука, стрельба пу\
+          левая, стрельба стендовая, пейнтбол, теннис"
+    cargo1:
+      summary: полис страхования грузов
+      description: запрос создания полиса страхования грузов
+      value:
+        product:
+          code: CARGO_GENERAL
+        startDate: 01.01.2021
+        endDate: 01.02.2021
+        issueDate: 01.01.2021
+        currencyCode: USD
+        currencyRate: 73.73
+        placeOfIssue: Москва
+        policyHolder:
+          organization:
+            fullname: ООО Самсунг СДС Рус
+            shortname: Самсунг СДС Рус
+            legalForm: OOO
+          address:
+            addressStr: "129515, г.Москва, ул.Академика Королева, д.2, к.3, кв.25"
+            addressStrEn: "129515, г.Moscow"
+        representative:
+          person:
+            fullName: Сергей
+          phone:
+            phoneNumber: "9991223332"
+          document:
+            typeCode: PoA
+            number: "1321321321312"
+            dateIssue: 2021-02-02
+            validUntil: 2025-02-02
+          position: Директор по продажам
+        insuredObject:
+          packageCode: "1"
+          covers:
+          - cover:
+              code: CARGO_CRUSH
+            risk: CARGO_CRUSH
+            sumInsuredCur: 2925979
+          cargo:
+            cargoType: Золотые слитки и бриллианты
+            cargoTypeEn: Gold bars and diamonds
+            cargoCategory: ОЦГ
+            cargoСondition: NEW
+            weight: 20 т.
+            quantity: 13 мест
+            packaging: бумажные коробки
+            packagingEn: papar boxes
+            containerNumbers:
+            - ABC123; AB-C-543
+            containerAmount: "22"
+          delivery:
+            shippingDocument:
+              number: МФ-2592454
+              dateIssue: 2021-09-30
+              transport:
+              - nameRu: Авто
+                nameEn: Avto
+                registrationNumber: A123AA99
+              - nameRu: авиа
+                nameEn: avia
+              conditionCarriage: Холодильная камера
+              RequirementTransport: Тент
+            departureAddress:
+              addressStr: "Санкт-Петербург, Невский проспект, 10, литера А"
+              addressStrEn: "129515, г.Moscow"
+            destinationAddress:
+              addressStr: "129515, г.Москва, ул.Академика Королева, д.2, к.3, кв.25"
+              addressStrEn: "129515, г.Moscow"
+            transitAddresses:
+            - addressStr: "129515, г.Москва, ул.Академика Королева, д.2, к.3, кв.25"
+              addressStrEn: "129515, г.Moscow"
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
