@@ -1,8 +1,8 @@
-name: Deploy VitePress site to Pages
+name: Deploy OpenAPI docs to GitHub Pages
 
 on:
   push:
-    branches: [main] # Или master, если это ваша основная ветка
+    branches: [main, master]
   workflow_dispatch:
 
 permissions:
@@ -20,28 +20,94 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      - name: Install dependencies
-        run: npm ci
-      - name: Build with VitePress
-        run: npm run docs:build
+
+      - name: Install VitePress and OpenAPI plugin
+        run: |
+          npm init -y
+          npm install vitepress vitepress-openapi
+
+      - name: Create VitePress config
+        run: |
+          mkdir -p docs/.vitepress/theme
+          
+          # Конфигурация VitePress
+          cat > docs/.vitepress/config.mts << 'EOF'
+          import { defineConfig } from 'vitepress'
+          
+          export default defineConfig({
+            title: 'My API Documentation',
+            description: 'API Reference',
+            base: '/${GITHUB_REPOSITORY#*/}/',
+            themeConfig: {
+              nav: [
+                { text: 'Home', link: '/' },
+                { text: 'API', link: '/api/' }
+              ],
+              sidebar: [
+                { text: 'Getting Started', link: '/' },
+                { text: 'API Reference', link: '/api/' }
+              ]
+            }
+          })
+          EOF
+          
+          # Расширение темы для OpenAPI
+          cat > docs/.vitepress/theme/index.ts << 'EOF'
+          import DefaultTheme from 'vitepress/theme'
+          import 'vitepress-openapi/dist/style.css'
+          import { enhanceAppWithOpenapi } from 'vitepress-openapi'
+          
+          export default {
+            ...DefaultTheme,
+            enhanceApp(ctx) {
+              enhanceAppWithOpenapi(ctx)
+              DefaultTheme.enhanceApp?.(ctx)
+            }
+          }
+          EOF
+
+      - name: Create homepage
+        run: |
+          cat > docs/index.md << 'EOF'
+          # API Documentation
+          
+          Welcome to the API documentation.
+          
+          ## Quick links
+          
+          - [API Reference](/api/)
+          EOF
+
+      - name: Create OpenAPI page
+        run: |
+          mkdir -p docs/api
+          cat > docs/api/index.md << 'EOF'
+          # API Reference
+          
+          <OASpec spec-url="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/main/openapi.yaml" />
+          EOF
+
+      - name: Build
+        run: npx vitepress build docs --base /${GITHUB_REPOSITORY#*/}/
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs/.vitepress/dist
+
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    needs: build
     runs-on: ubuntu-latest
-    name: Deploy
+    needs: build
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
