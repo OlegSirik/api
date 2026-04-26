@@ -26,7 +26,7 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install VitePress and OpenAPI plugin
+      - name: Install dependencies
         run: |
           npm init -y
           npm install vitepress vitepress-openapi
@@ -35,7 +35,6 @@ jobs:
         run: |
           mkdir -p docs/.vitepress/theme
           
-          # Конфигурация VitePress
           cat > docs/.vitepress/config.mts << 'EOF'
           import { defineConfig } from 'vitepress'
           
@@ -56,17 +55,17 @@ jobs:
           })
           EOF
           
-          # Расширение темы для OpenAPI
           cat > docs/.vitepress/theme/index.ts << 'EOF'
           import DefaultTheme from 'vitepress/theme'
           import 'vitepress-openapi/dist/style.css'
-          import { enhanceAppWithOpenapi } from 'vitepress-openapi'
+          import OASpec from 'vitepress-openapi/src/components/OASpec.vue'
+          import OAOperation from 'vitepress-openapi/src/components/OAOperation.vue'
           
           export default {
             ...DefaultTheme,
             enhanceApp(ctx) {
-              enhanceAppWithOpenapi(ctx)
-              DefaultTheme.enhanceApp?.(ctx)
+              ctx.app.component('OASpec', OASpec)
+              ctx.app.component('OAOperation', OAOperation)
             }
           }
           EOF
@@ -93,9 +92,7 @@ jobs:
           EOF
 
       - name: Build
-        run: npx vitepress build docs --base /${GITHUB_REPOSITORY#*/}/
-        env:
-          BASE_PATH: /${{ github.event.repository.name }}/
+        run: npx vitepress build docs
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
