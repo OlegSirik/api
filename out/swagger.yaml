@@ -1,0 +1,1207 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "title" : "policy БД API",
+    "description" : "policy БД API",
+    "contact" : {
+      "email" : "sirik@vsk.ru"
+    },
+    "license" : {
+      "name" : "Apache 2.0",
+      "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "url" : "https://virtserver.swaggerhub.com/insur/policy_wh/1.0.0",
+    "description" : "SwaggerHub API Auto Mocking"
+  }, {
+    "url" : "https://virtserver.swaggerhub.com",
+    "description" : "SwaggerHub API Auto Mocking"
+  } ],
+  "security" : [ {
+    "bearerAuth" : [ ]
+  } ],
+  "tags" : [ {
+    "name" : "lan",
+    "description" : "Operations available to lan user"
+  }, {
+    "name" : "partner",
+    "description" : "Operations available to partner"
+  } ],
+  "paths" : {
+    "/v1/policies" : {
+      "get" : {
+        "tags" : [ "partner" ],
+        "summary" : "поиск договоров по параметрам",
+        "description" : "Поиск договоров по переданным параметрам\n",
+        "operationId" : "searchPolicies",
+        "parameters" : [ {
+          "name" : "policy_nr",
+          "in" : "query",
+          "description" : "номер договора",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "product_code",
+          "in" : "query",
+          "description" : "код продукта",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "date_from",
+          "in" : "query",
+          "description" : "дата начала договора",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "date_to",
+          "in" : "query",
+          "description" : "дата окончания договора",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "skip",
+          "in" : "query",
+          "description" : "number of records to skip for pagination",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "minimum" : 0,
+            "type" : "integer",
+            "example" : 0,
+            "default" : 0
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "maximum number of records to return",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "maximum" : 50,
+            "minimum" : 0,
+            "type" : "integer",
+            "example" : 50,
+            "default" : 50
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "search results matching criteria",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PolicyShort"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Ошибка в формате запроса.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-10005",
+                  "errorDescription" : "ошибка в формате даты"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized (JWT not valid).",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00005",
+                  "errorDescription" : "ошибка авторизации"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Данные не найдены.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00005",
+                  "errorDescription" : "ошибка авторизации"
+                }
+              }
+            }
+          },
+          "503" : {
+            "description" : "Service Unavailable",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00105",
+                  "errorDescription" : "сервер недоступен"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "lan" ],
+        "summary" : "добавить новый договор",
+        "description" : "добавить новый договор",
+        "operationId" : "postPolicy",
+        "requestBody" : {
+          "description" : "договор",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Policy"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "item created"
+          },
+          "400" : {
+            "description" : "Ошибка в формате запроса.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-10005",
+                  "errorDescription" : "ошибка в формате даты"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized (JWT not valid).",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00005",
+                  "errorDescription" : "ошибка авторизации"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Invalid input ( нарушения уникальности в БД )",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00001",
+                  "errorDescription" : "такой номер договора уже есть в системе"
+                }
+              }
+            }
+          },
+          "503" : {
+            "description" : "Service Unavailable",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00105",
+                  "errorDescription" : "сервер недоступен"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/policies/{policyNr}" : {
+      "get" : {
+        "tags" : [ "partner", "lan" ],
+        "summary" : "получить договор по номеру",
+        "description" : "получить договор по номеру\n",
+        "operationId" : "getPolicyByNumber",
+        "parameters" : [ {
+          "name" : "policyNr",
+          "in" : "path",
+          "description" : "номер договора",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "search results matching criteria",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PolicyShort"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Ошибка в формате запроса.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-10005",
+                  "errorDescription" : "ошибка в формате даты"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized (JWT not valid).",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00005",
+                  "errorDescription" : "ошибка авторизации"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Данные не найдены.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00005",
+                  "errorDescription" : "ошибка авторизации"
+                }
+              }
+            }
+          },
+          "503" : {
+            "description" : "Service Unavailable",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00105",
+                  "errorDescription" : "сервер недоступен"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      },
+      "patch" : {
+        "tags" : [ "lan" ],
+        "summary" : "изменить статус договора",
+        "description" : "изменить статус договора",
+        "operationId" : "setStatusPolicy",
+        "parameters" : [ {
+          "name" : "policyNr",
+          "in" : "path",
+          "description" : "номер договора",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PolicyPatch"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "item created"
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "404" : {
+            "description" : "Данные не найдены.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00005",
+                  "errorDescription" : "ошибка авторизации"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "an existing item already exists"
+          }
+        }
+      }
+    },
+    "/v1/drafts/{draftId}" : {
+      "get" : {
+        "tags" : [ "partner", "lan" ],
+        "summary" : "поиск договора но ИД драфта",
+        "description" : "Для осаго нет номера договра. Поиск по ид\n",
+        "operationId" : "getDraft",
+        "parameters" : [ {
+          "name" : "draftId",
+          "in" : "path",
+          "description" : "ИД драфта",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "search results matching criteria",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PolicyShort"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Ошибка в формате запроса.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-10005",
+                  "errorDescription" : "ошибка в формате даты"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized (JWT not valid).",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00005",
+                  "errorDescription" : "ошибка авторизации"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Данные не найдены.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00005",
+                  "errorDescription" : "ошибка авторизации"
+                }
+              }
+            }
+          },
+          "503" : {
+            "description" : "Service Unavailable",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00105",
+                  "errorDescription" : "сервер недоступен"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch" : {
+        "tags" : [ "lan" ],
+        "summary" : "изменение номера договора и статуса договора",
+        "description" : "изменение номера договора и статуса договора",
+        "operationId" : "setStatusDraft",
+        "parameters" : [ {
+          "name" : "draftId",
+          "in" : "path",
+          "description" : "ИД драфта",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PolicyPatch"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "item created"
+          },
+          "400" : {
+            "description" : "Ошибка в формате запроса.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-10005",
+                  "errorDescription" : "ошибка в формате даты"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized (JWT not valid).",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00005",
+                  "errorDescription" : "ошибка авторизации"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Данные не найдены.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00005",
+                  "errorDescription" : "ошибка авторизации"
+                }
+              }
+            }
+          },
+          "503" : {
+            "description" : "Service Unavailable",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00105",
+                  "errorDescription" : "сервер недоступен"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/drafts/{draftId}/body" : {
+      "get" : {
+        "tags" : [ "partner", "lan" ],
+        "summary" : "получение тела договора по ид",
+        "description" : "получение тела договора по номеру\n",
+        "operationId" : "getPolicyBody",
+        "parameters" : [ {
+          "name" : "draftId",
+          "in" : "path",
+          "description" : "id договора",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "search results matching criteria",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PolicyBig"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Ошибка в формате запроса.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-10005",
+                  "errorDescription" : "ошибка в формате даты"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized (JWT not valid).",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00005",
+                  "errorDescription" : "ошибка авторизации"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Данные не найдены.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00005",
+                  "errorDescription" : "ошибка авторизации"
+                }
+              }
+            }
+          },
+          "503" : {
+            "description" : "Service Unavailable",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00105",
+                  "errorDescription" : "сервер недоступен"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "lan" ],
+        "summary" : "Заменить новый договор",
+        "description" : "добавить новый договор",
+        "operationId" : "putPolicyBig",
+        "parameters" : [ {
+          "name" : "draftId",
+          "in" : "path",
+          "description" : "id договора",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PolicyBig"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Ok"
+          },
+          "400" : {
+            "description" : "Ошибка в формате запроса.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-10005",
+                  "errorDescription" : "ошибка в формате даты"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized (JWT not valid).",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00005",
+                  "errorDescription" : "ошибка авторизации"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Данные не найдены.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00005",
+                  "errorDescription" : "ошибка авторизации"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Invalid input ( нарушения уникальности в БД )",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00001",
+                  "errorDescription" : "такой номер договора уже есть в системе"
+                }
+              }
+            }
+          },
+          "503" : {
+            "description" : "Service Unavailable",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00105",
+                  "errorDescription" : "сервер недоступен"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "lan" ],
+        "summary" : "добавить новый договор",
+        "description" : "добавить новый договор",
+        "operationId" : "postPolicyBig",
+        "parameters" : [ {
+          "name" : "draftId",
+          "in" : "path",
+          "description" : "id договора",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PolicyBig"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "item created"
+          },
+          "400" : {
+            "description" : "Ошибка в формате запроса.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-10005",
+                  "errorDescription" : "ошибка в формате даты"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized (JWT not valid).",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00005",
+                  "errorDescription" : "ошибка авторизации"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Invalid input ( нарушения уникальности в БД )",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00001",
+                  "errorDescription" : "такой номер договора уже есть в системе"
+                }
+              }
+            }
+          },
+          "503" : {
+            "description" : "Service Unavailable",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00105",
+                  "errorDescription" : "сервер недоступен"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/payment_attributes/{policyNr}" : {
+      "get" : {
+        "tags" : [ "lan" ],
+        "summary" : "получить аттрибуты для оплаты по номеру",
+        "description" : "получить аттрибуты для оплаты по номеру\n",
+        "operationId" : "searchPaymentAttributes",
+        "parameters" : [ {
+          "name" : "policyNr",
+          "in" : "path",
+          "description" : "номер договора",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "search results matching criteria",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaymentAttribute"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Ошибка в формате запроса.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-10005",
+                  "errorDescription" : "ошибка в формате даты"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized (JWT not valid).",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00005",
+                  "errorDescription" : "ошибка авторизации"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Данные не найдены.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00005",
+                  "errorDescription" : "ошибка авторизации"
+                }
+              }
+            }
+          },
+          "503" : {
+            "description" : "Service Unavailable",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HttpBadResponse"
+                },
+                "example" : {
+                  "errorCode" : "ERR-00105",
+                  "errorDescription" : "сервер недоступен"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "Policy" : {
+        "required" : [ "id", "patnerCode", "productCode" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "uuid",
+            "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+          },
+          "policyNr" : {
+            "type" : "string",
+            "example" : "1234SDF12345343"
+          },
+          "productCode" : {
+            "type" : "string",
+            "example" : "2016-08-29T09:12:33.001Z"
+          },
+          "partnerCode" : {
+            "type" : "string",
+            "example" : "VSK"
+          },
+          "statusCode" : {
+            "type" : "string",
+            "example" : "NEW"
+          },
+          "startDate" : {
+            "type" : "string"
+          },
+          "endDate" : {
+            "type" : "string"
+          },
+          "issueDate" : {
+            "type" : "string"
+          },
+          "createDate" : {
+            "type" : "string"
+          },
+          "paymentDate" : {
+            "type" : "string"
+          },
+          "paymentDateTo" : {
+            "type" : "string"
+          },
+          "cancellationDate" : {
+            "type" : "string"
+          },
+          "premium" : {
+            "type" : "number",
+            "example" : 100
+          }
+        }
+      },
+      "PolicyPatch" : {
+        "type" : "object",
+        "properties" : {
+          "statusCode" : {
+            "type" : "string",
+            "example" : "NEW"
+          }
+        }
+      },
+      "PolicyShort" : {
+        "required" : [ "id", "manufacturer", "name", "releaseDate" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "uuid",
+            "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+          },
+          "policyNr" : {
+            "type" : "string",
+            "example" : "1234SDF12345343"
+          },
+          "productCode" : {
+            "type" : "string",
+            "example" : "2016-08-29T09:12:33.001Z"
+          },
+          "statusCode" : {
+            "type" : "string",
+            "example" : "NEW"
+          },
+          "startDate" : {
+            "type" : "string"
+          },
+          "endDate" : {
+            "type" : "string"
+          },
+          "issueDate" : {
+            "type" : "string"
+          },
+          "createDate" : {
+            "type" : "string"
+          },
+          "paymentDate" : {
+            "type" : "string"
+          },
+          "cancellationDate" : {
+            "type" : "string"
+          },
+          "premium" : {
+            "type" : "number",
+            "example" : 100
+          }
+        }
+      },
+      "PolicyBig" : {
+        "required" : [ "body", "id" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "uuid",
+            "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+          },
+          "body" : {
+            "type" : "string"
+          }
+        }
+      },
+      "PaymentAttribute" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "uuid",
+            "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+          },
+          "policyNr" : {
+            "type" : "string",
+            "example" : "1234SDF12345343"
+          },
+          "partnerCode" : {
+            "type" : "string"
+          },
+          "productCode" : {
+            "type" : "string"
+          },
+          "productDescription" : {
+            "type" : "string"
+          },
+          "premium" : {
+            "type" : "number"
+          },
+          "phFullName" : {
+            "type" : "string"
+          },
+          "phPhone" : {
+            "type" : "string"
+          },
+          "phEmail" : {
+            "type" : "string"
+          },
+          "phPassportSeries" : {
+            "type" : "string"
+          },
+          "phPassportNumber" : {
+            "type" : "string"
+          },
+          "phInn" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Error" : {
+        "type" : "object",
+        "properties" : {
+          "errorCode" : {
+            "type" : "string"
+          },
+          "errorDescription" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Errors" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/Error"
+        }
+      },
+      "HttpBadResponse" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/Errors"
+        } ]
+      }
+    },
+    "responses" : {
+      "Http-400" : {
+        "description" : "Ошибка в формате запроса.",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/HttpBadResponse"
+            },
+            "example" : {
+              "errorCode" : "ERR-10005",
+              "errorDescription" : "ошибка в формате даты"
+            }
+          }
+        }
+      },
+      "Http-401" : {
+        "description" : "Unauthorized (JWT not valid).",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/HttpBadResponse"
+            },
+            "example" : {
+              "errorCode" : "ERR-00005",
+              "errorDescription" : "ошибка авторизации"
+            }
+          }
+        }
+      },
+      "Http-404" : {
+        "description" : "Данные не найдены.",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/HttpBadResponse"
+            },
+            "example" : {
+              "errorCode" : "ERR-00005",
+              "errorDescription" : "ошибка авторизации"
+            }
+          }
+        }
+      },
+      "Http-409" : {
+        "description" : "Invalid input ( нарушения уникальности в БД )",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/HttpBadResponse"
+            },
+            "example" : {
+              "errorCode" : "ERR-00001",
+              "errorDescription" : "такой номер договора уже есть в системе"
+            }
+          }
+        }
+      },
+      "Http-503" : {
+        "description" : "Service Unavailable",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/HttpBadResponse"
+            },
+            "example" : {
+              "errorCode" : "ERR-00105",
+              "errorDescription" : "сервер недоступен"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "bearerAuth" : {
+        "type" : "http",
+        "scheme" : "bearer",
+        "bearerFormat" : "JWT"
+      }
+    }
+  }
+}
